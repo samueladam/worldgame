@@ -20,7 +20,7 @@
 
  {% if score %}
 <p style="font-size: 20px">Score: {{ score }} point{{ score|pluralize }}
- ( <a href="{% url reset_score %}" class="visible">reset</a>
+ ( <a href="{% url reset_score %}" class="visible">restart game</a>
 <a href="{% url highscore %}" class="visible">highscore</a> )
 </p>
  {% endif %}

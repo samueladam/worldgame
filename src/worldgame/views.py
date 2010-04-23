@@ -87,7 +87,7 @@ def highscore(request):
 
     if score and name:
         Highscore.objects.create(name=name[:30], score=score)
-        del request.session['score']
+        reset_score(request)
         return redirect('highscore')
 
     return object_list(request,

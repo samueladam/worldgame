@@ -80,7 +80,6 @@ def to_svg(country):
             fs.delete(path)
 
         x0, y0, x1, y1 = country.geom.extent
-        print country.geom.extent
 
         # svg Y axis is inverted
         y0, y1 = -1 * y0, -1 * y1

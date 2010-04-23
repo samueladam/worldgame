@@ -1,3 +1,6 @@
+
+
+
 sudo su postgres -c "createuser -S -D -R -E -P worldgame"
 sudo su postgres -c "createdb -E utf8 -T template_postgis -U postgres -O worldgame worldgame"
 

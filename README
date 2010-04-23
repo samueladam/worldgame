@@ -1,0 +1,29 @@
+INSTALL
+-------
+
+If you're on debian, you can install the requirements::
+
+	sudo aptitude install postgresql-server-dev-8.4 postgresql-8.4-postgis
+	sudo aptitude install libpng12-dev libjpeg62-dev zlib1g libfreetype6-dev libxml2-dev libxslt1-dev
+
+Install the environment::
+
+	git clone git://github.com/samueladam/worldgame.git
+	cd worldgame
+	wget  http://svn.zope.org/*checkout*/zc.buildout/trunk/bootstrap/bootstrap.py
+	python bootstrap.py
+	./bin/buildout
+
+Setup the database::
+	
+	sudo su postgres -c "createuser -S -D -R -E -P worldgame"
+	sudo su postgres -c "createdb -E utf8 -T template_postgis -U postgres -O worldgame worldgame"
+	# add this line to pg_hba.conf
+	local	worldgame	worldgame	md5
+
+
+Install and run the django application::
+
+	./bin/django-admin syncdb
+	./bin/django-admin runserver
+
