@@ -1,64 +1,98 @@
 #! -*- coding: utf-8 -*-
-from django.db import transaction
+from random import shuffle
+
 from django.views.generic.list_detail import object_list
 from django.views.generic.simple import direct_to_template
 from django.shortcuts import get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
 
-from .models import Country
+from .models import Country, Highscore
 from .forms import CountryForm
 
-PAGINATE_BY = 30
 
-def list_country(request):
-    "List every country."
-    return object_list(request,
-                       Country.objects.all(),
-                       paginate_by=PAGINATE_BY,
-                       template_name='worldgame/list.html',
-                       extra_context={})
+def question(request):
+    "Shows countries and asks to find one."
+    # initialize game
+    if 'score' not in request.session:
+        request.session['score'] = 0
+    if 'played' not in request.session:
+        request.session['played'] = []
 
-def show_country(request, id):
-    "Show an country."
-    country = get_object_or_404(Country, pk=id)
-    return direct_to_template(request,
-                              'worldgame/object.html',
-                              {'object': country})
+    # get the next country
+    next = Country.objects.svg().exclude(id__in=request.session['played'])[:1]
+    if next:
+        country = next[0]
+    else:
+        # game is finished
+        redirect('highscore')
 
-@login_required
-@transaction.commit_on_success
-def edit_country(request, id=None, delete=False):
-    "Create, delete or edit an country."
+    # are we already playing ?
+    countries = request.session.get('countries', [])
 
-    if id:
-        country = get_object_or_404(Country, pk=id)
+    if countries:
+        # we're playing, do we have an answer?
+        answer = request.GET.get('answer', None)
 
-        if delete:
-            country.delete()
-            messages.success(request, _('deleted.'))
-            return redirect('list_country')
+        if answer in ('0', '1', '2', '3'):
+            if countries[int(answer)].id == country.id:
+                # 3 points for a good guess
+                request.session['score'] += 3
+                request.session['played'].append(country.id)
+                del request.session['countries']
+                return redirect('answer', country.name)
+            else:
+                # -1 for a miss
+                request.session['score'] -= 1
+                messages.error(request, _('Try again...'))
 
     else:
-        country = Country()
-
-    form = CountryForm(request.POST or None,
-                       request.FILES or None,
-                       instance=country)
-
-    if form.is_valid():
-        country = form.save(commit=False)
-        country.user = request.user
-        country.save()
-
-        messages.success(request, _('updated.'))
-
-        return redirect(country)
+        # this is a new game, create the list of four countries
+        countries = Country.objects.svg().exclude(id=country.id).order_by('?')[:3]
+        countries = [country] + list(countries)
+        shuffle(countries)
+        request.session['countries'] = countries
 
     return direct_to_template(request,
-                              'worldgame/form.html',
-                              {'form': form})
+                              'worldgame/question.html',
+                              {'country': country,
+                               'countries': countries,
+                               'score': request.session['score']})
 
 
+def answer(request, name):
+    "Shows the correct country on a map."
+    country = get_object_or_404(Country, name=name)
+    return direct_to_template(request,
+                              'worldgame/answer.html',
+                              {'country': country,
+                               'form': CountryForm(instance=country),
+                               'score': request.session['score']})
 
+
+def reset_score(request):
+    "Resets the game."
+    for key in ('score', 'played', 'countries'):
+        if key in request.session:
+            del request.session[key]
+
+    return redirect('question')
+
+
+def highscore(request):
+    "Shows 100 best scores."
+    # do we record a score?
+    score = request.session.get('score', None)
+    name = request.POST.get('name', None)
+
+    if score and name:
+        Highscore.objects.create(name=name[:30], score=score)
+        del request.session['score']
+        return redirect('highscore')
+
+    return object_list(request,
+                       Highscore.objects.all()[:100],
+                       template_name='worldgame/highscore.html',
+                       extra_context={
+                            'score': score,
+                        })

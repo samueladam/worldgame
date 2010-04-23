@@ -13,4 +13,5 @@ build
 bootstrap.py
 src/django
 src/django-extensions
+src/worldgame/static/svg
 *.egg-info

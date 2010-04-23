@@ -1,9 +1,9 @@
-from django.contrib import admin
+from django.contrib.gis import admin
 
 from .models import Country
 
-class CountryAdmin(admin.ModelAdmin):
-    date_hierarchy = 'timestamp'
-    list_display = ('name', 'timestamp')
+
+class CountryAdmin(admin.OSMGeoAdmin):
+    pass
 
 admin.site.register(Country, CountryAdmin)

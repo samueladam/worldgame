@@ -1,40 +1,41 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime
-
-from django.db import models
+from django.contrib.gis.db import models
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.auth.models import User
 
-
-COLORS = (
-    (0, _('black')),
-    (1, _('white')),
-)
 
 class Country(models.Model):
-    "Explain what Example is for."
-    name = models.CharField(_('name'), max_length=50)
-    details = models.TextField(_('details'), blank=True, null=True)
-    user = models.ForeignKey(User, related_name="examples")
-    timestamp = models.DateTimeField(default=datetime.now)
-    counter = models.PositiveIntegerField(_('counter'), default=0)
-    color = models.PositiveSmallIntegerField(_('color'), choices=COLORS,
-                                     default=COLORS[0][0])
+    "Country model."
+    name = models.CharField(_('name'), max_length=99,
+                            unique=True, db_index=True)
+    geom = models.MultiPolygonField(_('geometry'), dim=2, srid=900913)
+    population = models.IntegerField(_('population'), default=0)
+
+    objects = models.GeoManager()
 
     class Meta:
-        db_table = 'countrys'
-        ordering = ('-timestamp',)
+        db_table = 'country'
+        ordering = ('-population',)
         verbose_name = _('country')
-        verbose_name_plural = _('countrys')
+        verbose_name_plural = _('countries')
 
     def __unicode__(self):
         return self.name
-
-    def save(self, *args, **kwargs):
-        super(Country, self).save(*args, **kwargs)
 
     @models.permalink
     def get_absolute_url(self):
         return ('show_country', (self.id,))
 
 
+class Highscore(models.Model):
+    "Scores model."
+    name = models.CharField(_('name'), max_length=30)
+    score = models.IntegerField(_('score'), default=0)
+
+    class Meta:
+        db_table = 'highscore'
+        ordering = ('-score',)
+        verbose_name = _('high score')
+        verbose_name_plural = _('high scores')
+
+    def __unicode__(self):
+        return self.name

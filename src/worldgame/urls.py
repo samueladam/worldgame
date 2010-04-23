@@ -3,16 +3,13 @@ from django.conf import settings
 
 
 urlpatterns = patterns('worldgame.views',
-    url(r'^$', 'list_country', name='list_country'),
+    url(r'^$', 'question', name='question'),
 
-    url(r'^new/$', 'edit_country', name='new_country'),
+    url(r'^country/(?P<name>.*)/$', 'answer', name='answer'),
 
-    url(r'^(?P<id>\d+)/edit/$', 'edit_country', name='edit_country'),
+    url(r'^reset/$', 'reset_score', name='reset_score'),
 
-    url(r'^(?P<id>\d+)/delete/$', 'edit_country',
-            {'delete': True}, name='delete_country'),
-
-    url(r'^(?P<id>\d+)/$', 'show_country', name='show_country'),
+    url(r'^highscore/$', 'highscore', name='highscore'),
 )
 
 if settings.DEBUG:
@@ -20,5 +17,7 @@ if settings.DEBUG:
     admin.autodiscover()
     urlpatterns += patterns('',
         (r'^admin/', include(admin.site.urls)),
-    )   
+        (r'^static/(?P<path>.*)$', 'django.views.static.serve', 
+                                  {'document_root': settings.MEDIA_ROOT}),
+    )
 

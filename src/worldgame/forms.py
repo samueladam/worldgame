@@ -1,18 +1,29 @@
 # -*- coding: utf-8 -*-
+from django.contrib.gis import admin
 from django import forms
-from django.utils.translation import ugettext_lazy as _
 
 from .models import Country
 
+# create a geoadmin instance
+geoadmin = admin.GeoModelAdmin(Country, admin.site)
+geoadmin.num_zoom = 4
+geoadmin.modifiable = False
+geoadmin.layerswitcher = False
+geoadmin.mouse_position = False
+geoadmin.scale_text = False
+
+# get the Open Layers widget for the geom field
+field = Country._meta.get_field('geom')
+widget = geoadmin.get_map_widget(field)
+
 
 class CountryForm(forms.ModelForm):
-
-    def clean_name(self):
-        value = self.cleaned_data['name']
-        if value.startswith('_'):
-            raise forms.ValidationError(_('Name cannot start with _.'))
-        return value
+    "This form is a hack to display an OpenLayers map."
+    geom = forms.CharField(widget=widget)
 
     class Meta:
         model = Country
-        fields = ('name', 'details', 'color',)
+        fields = ('name', 'geom',)
+
+    class Media:
+        js = (geoadmin.openlayers_url,)
