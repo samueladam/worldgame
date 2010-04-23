@@ -68,16 +68,14 @@ def to_svg(country):
 
     {% load map_tags %}
 
-    {{ object|svg }}
+    {{ object|svg_map }}
     """
 
     # keep countries anonymous
     path = "svg/%s.svg" % md5(country.name.encode('utf-8')).hexdigest()
 
     # create SVG only once
-    if True or not fs.exists(path):
-        if fs.exists(path):
-            fs.delete(path)
+    if not fs.exists(path):
 
         x0, y0, x1, y1 = country.geom.extent
 
