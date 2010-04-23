@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% load map_tags %}
+
+{% block content %}
+<h1 style="text-align: center">Which one is {{ country }}?</h1>
+
+{% for country in countries %}
+<a href="?answer={{ forloop.counter0 }}"><img src="{{ country|svg_map }}" width="200" height="200" border="0" alt="Country" style="margin: 50px;" /></a>
+{% endfor %}
+
+{% endblock %}

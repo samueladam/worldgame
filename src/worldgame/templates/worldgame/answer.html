@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+
+{% block extra_head %}
+{{ form.media }}
+<style>
+h1 {text-align: center;}
+a { display: none }
+a.visible { display: inline; color: blue }
+#id_geom_map {margin-bottom: 50px !important;}
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>You found {{ country }}, <a href="{% url question %}" class="visible">Next!</a></h1>
+
+<form>
+{{ form.geom }}
+</form>
+
+{% endblock %}

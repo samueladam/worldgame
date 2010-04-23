@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+
+{% block extra_head %}
+<style>
+table { border-collapse: collapse; margin-bottom: 50px;}
+td { font-size: 20px; padding: 2px}
+td.score {width: 120px; }
+tr.best {background: red; }
+</style>
+{% endblock %}
+
+
+{% block content %}
+<h1>H1GHSC0RE</h1>
+
+{% if score %}
+<form method="post" action=".">
+<p>Record you score or <a href="{% url question %}">continue game</a></p>
+<p><label for="name">Name:</label> <input type="text" name="name"></p>
+{% csrf_token %}
+</form>
+{% else %}
+<p><a href="{% url question %}">Continue game</a></p>
+{% endif %}
+
+<table width="100%" border="0">
+<tbody>
+{% for object in object_list %}
+<tr{% if forloop.first %} class="best"{% endif %}>
+<td>{{ object.name }}{% if forloop.first %} is the best!{% endif %}</td>
+<td class="score">{{ object.score }} point{{ object.score|pluralize }}</td></tr>
+{% endfor %}
+</tbody>
+</table>
+{% endblock %}

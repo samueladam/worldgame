@@ -1,0 +1,31 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+ "http://www.w3.org/TR/html4/strict.dtd">
+ <html>
+ <head>
+ <title>World Game</title>
+ <link rel="stylesheet" href="/static/style.css" type="text/css">
+ {% block extra_head %}{% endblock %}
+ </head>
+ <body>
+ <div style="width: 620px; margin: auto;">
+ {% block content %}{% endblock %}
+
+{% if messages %}
+<div class="messages">
+    {% for message in messages %}
+    <p{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+    {% endfor %}
+</div>
+{% endif %}
+
+ {% if score %}
+<p style="font-size: 20px">Score: {{ score }} point{{ score|pluralize }}
+ ( <a href="{% url reset_score %}" class="visible">reset</a>
+<a href="{% url highscore %}" class="visible">highscore</a> )
+</p>
+ {% endif %}
+
+ </div>
+ </body>
+ </html>
+
